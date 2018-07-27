@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    feedbag (0.9.6)
+    feedbag (0.9.8)
       nokogiri (~> 1.0)
       open_uri_redirections (~> 0.2)
 
@@ -18,12 +18,12 @@ GEM
     hashdiff (0.3.4)
     i18n (0.6.1)
     metaclass (0.0.1)
-    mini_portile2 (2.1.0)
+    mini_portile2 (2.3.0)
     mocha (0.12.10)
       metaclass (~> 0.0.1)
     multi_json (1.7.2)
-    nokogiri (1.7.2)
-      mini_portile2 (~> 2.1.0)
+    nokogiri (1.8.4)
+      mini_portile2 (~> 2.3.0)
     open_uri_redirections (0.2.1)
     public_suffix (2.0.5)
     safe_yaml (1.0.4)
@@ -48,4 +48,4 @@ DEPENDENCIES
   webmock (~> 3)
 
 BUNDLED WITH
-   1.14.6
+   1.16.2
