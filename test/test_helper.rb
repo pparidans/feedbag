@@ -1,8 +1,8 @@
 require 'rubygems'
-require 'test/unit'
+require 'minitest/autorun'
 require 'shoulda'
 require 'mocha/setup'
-require 'webmock/test_unit'
+require 'webmock/minitest'
 WebMock.allow_net_connect!
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))

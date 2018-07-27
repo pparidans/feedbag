@@ -18,9 +18,10 @@ Gem::Specification.new do |s|
   s.summary = %q{Ruby's favorite feed auto-discovery tool}
   s.add_dependency('nokogiri', '~> 1.0')
   s.add_dependency('open_uri_redirections', '~> 0.2')
-  s.add_development_dependency 'shoulda', '~> 3'
-  s.add_development_dependency 'mocha', '~> 0.12', '>= 0.12.0'
+  s.add_development_dependency 'shoulda', '~> 3', '>= 3.6.0'
+  s.add_development_dependency 'mocha', '~> 0.14', '>= 0.14.0'
   s.add_development_dependency 'webmock', '~> 3'
+  s.add_development_dependency 'rake'
   s.bindir = 'bin'
   s.default_executable = %q{feedbag}
   s.executables = ["feedbag"]
