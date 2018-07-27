@@ -38,10 +38,20 @@ class FeedbagTest < MiniTest::Test
       src = 'test/testcases/json1.html'
       stub_request(:any, "example3.com").to_return(body: File.new(src), status: 200,  headers: {"Content-Type" => 'text/html'})
       result = Feedbag.find('http://example3.com')
-      
+
       assert result.include?('https://blog.booko.com.au/feed/json/')
       assert result.include?('https://blog.booko.com.au/feed/')
       assert result.include?('https://blog.booko.com.au/comments/feed/')
+    end
+  end
+
+  context "Feedbag find for Alwaysdata" do
+    should "accept feed" do
+      src = 'test/testcases/alwaysdata.xml'
+      stub_request(:any, 'blog.alwaysdata.com').to_return(body: File.new(src), status: 200, headers: {'Content-Type' => 'application/rss+xml; charset=UTF-8'})
+      url = "https://blog.alwaysdata.com/feed/"
+      result = Feedbag.find(url)
+      assert result.include?(url)
     end
   end
 

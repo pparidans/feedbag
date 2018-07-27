@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>alwaysdata | blog</title>
+	<atom:link href="https://blog.alwaysdata.com/feed/" rel="self" type="application/rss+xml" />
+	<link>https://blog.alwaysdata.com</link>
+	<description>Le blog pour suivre l&#039;actualité alwaysdata</description>
+	<lastBuildDate>Thu, 26 Jul 2018 12:20:04 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=4.9.7</generator>
+
+<image>
+	<url>https://blog.alwaysdata.com/wp-content/uploads/2018/02/cropped-alwaysdata_logo_square-32x32.png</url>
+	<title>alwaysdata | blog</title>
+	<link>https://blog.alwaysdata.com</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>Custom logs</title>
+		<link>https://blog.alwaysdata.com/2018/07/26/custom-logs/</link>
+		<comments>https://blog.alwaysdata.com/2018/07/26/custom-logs/#respond</comments>
+		<pubDate>Thu, 26 Jul 2018 11:37:58 +0000</pubDate>
+		<dc:creator><![CDATA[David Testé]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Core]]></category>
+		<category><![CDATA[Deployment]]></category>
+		<category><![CDATA[Updates]]></category>
+		<category><![CDATA[Proxy]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2467</guid>
+		<description><![CDATA[Need to customize your log file for access or debug? We can do that too!]]></description>
+				<content:encoded><![CDATA[<p>Here’s our last blog post about new features in our reverse-proxy engine. Previously, we talked about <a href="https://blog.alwaysdata.com/2018/07/24/web-application-firewall-waf/">WAF</a> and <a href="https://blog.alwaysdata.com/2018/07/25/http-cache/">HTTP Cache</a>. Now it’s time to introduce you to <em>custom logs</em>.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:48%;"><img alt="Log GIF @Giphy" src="https://media.giphy.com/media/pyl1E9trnmwdW/giphy-downsized-large.gif"></div>
+<h2><em>Upstreams</em> logs</h2>
+<p>At <em>alwaysdata</em>, an <em>upstream</em> is an HTTP server our proxy use as a backend to serve pages to your visitors. An upstream can be a built-in HTTP server embed in your application, or a dedicated HTTP server like <em>Apache</em> or <em>uWSGI</em>.</p>
+<p>Now, we write all output messages on standard streams<sup id="footnote_plugin_tooltip_1" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_1');">1)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_1"></span> to a dedicated file. This one is available in the <code>~/admin/logs/sites/</code> directory. Those logs allow developers and DevOps people to monitor and debug their applications running on our platform. When you rely on a <em>custom upstream</em> (like a Node.js service), you can get your application outputs. It allows you to find the glitch when a service refuses to start properly.</p>
+<p>The same file hosts all written messages from all <em>upstreams</em> which belongs to the same <em>alwaysdata</em> account. Each upstream uses its <code>PID</code><sup id="footnote_plugin_tooltip_2" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_2');">2)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_2"></span> to mark a line in the log file. <code>PID</code>s allow you to retrieve which process (a.k.a. which <em>upstream</em>) currently output a line. This identifier is available between brackets after the date: <code>[14/Jul/2018:10:04:21 +0200] [PID]</code>. When an upstream end — e.g., when it stays idle for a long time — the given PID can be different when it restarts.  Two lines are output in the log file each time an upstream wakes up. It allows you to match PID and upstream:</p>
+<p></p><pre class="crayon-plain-tag">[14/Jul/2018:10:04:21 +0200] Upstream starting: /command/to/your/upstream ...
+[14/Jul/2018:10:04:21 +0200] Upstream started PID: 12345</pre><p></p>
+<h2>Access logs</h2>
+<p>Now, you can choose the name given to the access log files. To customize this entry, go to <em>Sites → Edit → Logs</em>.</p>
+<p><img src="https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-logs.en_.png" alt="Screenshot of website's logs customization view" class="aligncenter size-full wp-image-2494 embed-media__ad__medium" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-logs.en_.png 1000w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-logs.en_-300x200.png 300w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-logs.en_-768x511.png 768w" sizes="(max-width: 1000px) 100vw, 1000px"></p>
+<p>You can also edit the output formats. If you need to parse your log files using a parser or a script, the custom output formats allow your log files to be suitable with your workflow. This field allows variable names between brackets <code>{}</code>. Their values substitute them at writing time. You can also free characters string. The syntax and variables available are <a href="https://help.alwaysdata.com/my-account/sites/http-access-logs-customization">documented in our logs page</a>.</p>
+<p>The default format is:</p>
+<p></p><pre class="crayon-plain-tag">{request_hostname} {client_ip} {default} {default} [{completion_date:{%d/%b/%Y:%H:%M:%S %z}}] {request} {status} {response_size} {referer} {user_agent}</pre><p></p>
+<p>It returns this string:</p>
+<p></p><pre class="crayon-plain-tag">sandbox.alwaysdata.net 127.0.0.1 - - [16/Jul/2018:12:04:07 +0200] "GET /wp/ HTTP/1.1" 200 55380 "-" "curl/7.47.0"</pre><p></p>
+<p>To customize the output to provide the protocol, request duration and some characters strings, you may use the following syntax:</p>
+<p></p><pre class="crayon-plain-tag">[{completion_date:{%d/%b/%Y:%H:%M:%S %z}}] protocol: {protocol} {request} duration: {duration} seconds</pre><p></p>
+<p>Which outputs:</p>
+<p></p><pre class="crayon-plain-tag">[16/Jul/2018:12:04:07 +0200] protocol: "https" "GET /wp/ HTTP/1.1" duration: 0.134 seconds</pre><p></p>
+<hr>
+<p>With fully customizable access logs and an easier upstream debug, we design a more comfortable hosting platform. Monitoring and observing services on production at <em>alwaysdata</em> becomes painless.</p>
+<p>This blog post is the last one about our new proxy’s features. We built our service for you and with you. Please help us again to improve it by giving us some feedback in comments to explain which features are missing for you!</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:36%;"><img alt="jin yang handshake GIF by Silicon Valley @Giphy" src="https://media.giphy.com/media/3og0IG0vkIQpuJoLvO/giphy.gif"></div>
+<div class="footnote_container_prepare">	<p><span onclick="footnote_expand_reference_container();">Notes</span><span style="display: none;">&nbsp;&nbsp;&nbsp;[ <a id="footnote_reference_container_collapse_button" style="cursor:pointer;" onclick="footnote_expand_collapse_reference_container();">+</a> ]</span></p></div><div id="footnote_references_container" style="">	<table class="footnote-reference-container">		<tbody>		<tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_1">1.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_1');">&#8593;</span></td>	<td class="footnote_plugin_text"><code>stdout</code> and <code>stderr</code></td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_2">2.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_2');">&#8593;</span></td>	<td class="footnote_plugin_text"><a href="https://en.wikipedia.org/wiki/Process_identifier">Process IDentifier</a></td></tr>		</tbody>	</table></div><script type="text/javascript">	function footnote_expand_reference_container() {		jQuery("#footnote_references_container").show();        jQuery("#footnote_reference_container_collapse_button").text("-");	}    function footnote_collapse_reference_container() {        jQuery("#footnote_references_container").hide();        jQuery("#footnote_reference_container_collapse_button").text("+");    }	function footnote_expand_collapse_reference_container() {		if (jQuery("#footnote_references_container").is(":hidden")) {            footnote_expand_reference_container();		} else {            footnote_collapse_reference_container();		}	}    function footnote_moveToAnchor(p_str_TargetID) {        footnote_expand_reference_container();        var l_obj_Target = jQuery("#" + p_str_TargetID);        if(l_obj_Target.length) {            jQuery('html, body').animate({                scrollTop: l_obj_Target.offset().top - window.innerHeight/2            }, 1000);        }    }</script>]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/07/26/custom-logs/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>HTTP Cache</title>
+		<link>https://blog.alwaysdata.com/2018/07/25/http-cache/</link>
+		<comments>https://blog.alwaysdata.com/2018/07/25/http-cache/#respond</comments>
+		<pubDate>Wed, 25 Jul 2018 12:37:50 +0000</pubDate>
+		<dc:creator><![CDATA[David Testé]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Core]]></category>
+		<category><![CDATA[Features]]></category>
+		<category><![CDATA[Performance]]></category>
+		<category><![CDATA[Proxy]]></category>
+		<category><![CDATA[Updates]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2437</guid>
+		<description><![CDATA[To help you to serve your HTTP resources approximately 200 times faster, we give you a built-in HTTP Cache!]]></description>
+				<content:encoded><![CDATA[<p>Here is our second article dedicated to our new reverse-proxy engine and its awesome features! After the <a href="https://blog.alwaysdata.com/2018/07/24/web-application-firewall-waf/">Web Application Firewall</a>, we now have a look to the HTTP cache built into our infrastructure.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:27%;"><img alt="punch it star trek GIF @Giphy" src="https://media.giphy.com/media/4iRDkqvIH5U9G/giphy-downsized-large.gif"></div>
+<h2>What is an HTTP cache?</h2>
+<h3>A good blog post is a post with a chart</h3>
+<p>We have tested our WordPress blog performances, using our new HTTP cache built in our proxy. Here is the result, which let us bet that may like this new feature:</p>
+<p></p><canvas id="chart" height="100" class="aligncenter embed-media__ad__medium"></canvas>
+<p>There’s a considerable improvement of the number of requests handled by the proxy when we enable the Cache. When we only serve 15 req/s without it, it increases to 2604 req/s. A <strong>173</strong> factor, for the same frame. The response time is also improved, and fall to 0.38ms instead of 63.65ms approximately. It’s interesting for a feature effortless to use!</p>
+<p>We made this benchmark using <em>ApacheBench</em>, by requesting the blog homepage. We run each shoot<sup id="footnote_plugin_tooltip_8677_1" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_8677_1');">1)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_8677_1"></span> four times, with and without Cache enabled, before compiling the results. Our blog stands on a dedicated server, but we expect a similar rate for shared hosting instances. You can make the test yourself by connecting to your account using <em>SSH</em> and running the <code>ab</code> command using the same options on your website.</p>
+<h3>How does it work?</h3>
+<p>A Cache is a temporary storage which can serve the <em>cached</em> results when requested. An HTTP Cache is a cache which can store web pages and assets. It is primarily used to decrease the charge of an upstream server when it must serve an often requested page without any modification between two requests.</p>
+<p>When a client requests a page to a web server, this one generates an HTML response and send it to the client over the network. Before the response goes outside of the infrastructure, the HTTP Cache handles it and stores it in its memory before to let it go.</p>
+<figure class="embed-media__ad__medium">
+    <img src="https://blog.alwaysdata.com/wp-content/uploads/2018/07/http_cache_part_1.en_.png" alt="Caching a resource (schema)" class="aligncenter size-full wp-image-2430" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/07/http_cache_part_1.en_.png 792w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/http_cache_part_1.en_-300x170.png 300w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/http_cache_part_1.en_-768x435.png 768w" sizes="(max-width: 792px) 100vw, 792px"><figcaption>Caching a resource when a new request happens <small>(icons from The Noun Project)</small></figcaption></figure>
+<p>When our proxy encounters the same request, it asks the Cache for an available version. If the page is available in the Cache memory, this one is served instead of asking the upstream server.</p>
+<figure class="embed-media__ad__medium">
+    <img src="https://blog.alwaysdata.com/wp-content/uploads/2018/07/http_cache_part_2.en_.png" alt="Serving a cached resource (schema)" class="aligncenter size-full wp-image-2428" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/07/http_cache_part_2.en_.png 792w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/http_cache_part_2.en_-300x170.png 300w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/http_cache_part_2.en_-768x435.png 768w" sizes="(max-width: 792px) 100vw, 792px"><figcaption>Serving previously cached resource <small>(icons from The Noun Project)</small></figcaption></figure>
+<h2>Use it at alwaysdata</h2>
+<p>If you want to use the HTTP Cache, you can enable it for any site individually in the <em>Sites → Edit → Cache</em> section. Tick the <em>Enable the cache</em> option.</p>
+<p><img src="https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-cache.en_.png" alt="Screenshot of the interface to enable cache for a web site" class="aligncenter size-full wp-image-2490 embed-media__ad__medium" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-cache.en_.png 1000w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-cache.en_-300x179.png 300w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-cache.en_-768x457.png 768w" sizes="(max-width: 1000px) 100vw, 1000px"></p>
+<p>You must set the <a href="https://en.wikipedia.org/wiki/Time_to_live">TTL</a> for the pages served by this website. The TTL defines how many times the Cache retains the page before expiring it. You should choose it well. If we recommend a high TTL for a page that is not often modified, you must reduce it for highly dynamic content like a news website. If you set a too long duration, your visitors may see an expired page instead.</p>
+<p>For instance, we need that any visitor sees a new homepage. When we publish a new article, the previous version of the homepage is then outdated. We then prefer to use a TTL between 5 and 10 seconds. This way, we ensure that we can use the high performances offered by the Cache with a relatively low risk of serving an old page.</p>
+<p class="inset" data-title="Note">This feature is currently in beta test and may evolves during the next weeks.</p>
+<p class="inset warning" data-title="Important">This feature need your application or website to be able to authorize the Cache to handle the requests. If resources aren’t explicitly marked as _cacheable_ by your app, there is a risk that our HTTP Cache can’t store them.</p>
+<h2>What’s behind the scene?</h2>
+<p>For technical people, here’s how we proceed to enable the cache. We chose to write with Python<sup id="footnote_plugin_tooltip_8677_2" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_8677_2');">2)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_8677_2"></span> a module that follows the <a href="https://tools.ietf.org/html/rfc7234">RFC 7234</a>. A local <a href="https://redis.io/">Redis</a> instance stores the cached resources. It allows us to manage the memory dedicated to the storage effortlessly.</p>
+<p>We also chose to implement the HTTP <em>PURGE</em> verb. This method allows you to remove a cached version of a resource by calling it on its URL. Yan can then force to refresh the Cache easily.</p>
+<hr>
+<p>After the performance, we made a significant effort on logging! In our next and last blog post, we introduce you to the new logging system that allows you to store <a href="https://blog.alwaysdata.com/2018/07/26/custom-logs/">custom formatted logs</a> to allow you to debug your upstream applications effortlessly.</p>
+<div class="footnote_container_prepare">	<p><span onclick="footnote_expand_reference_container();">Notes</span><span style="display: none;">&nbsp;&nbsp;&nbsp;[ <a id="footnote_reference_container_collapse_button" style="cursor:pointer;" onclick="footnote_expand_collapse_reference_container();">+</a> ]</span></p></div><div id="footnote_references_container" style="">	<table class="footnote-reference-container">		<tbody>		<tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_8677_1">1.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_8677_1');">&#8593;</span></td>	<td class="footnote_plugin_text"><code>ab -c 10 -t 60 http://blog.alwaysdata.com/</code></td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_8677_2">2.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_8677_2');">&#8593;</span></td>	<td class="footnote_plugin_text">cause we <img src="https://s.w.org/images/core/emoji/2.4/72x72/2665.png" alt="♥" class="wp-smiley" style="height: 1em; max-height: 1em;" /> Python at alwaysdata</td></tr>		</tbody>	</table></div><script type="text/javascript">	function footnote_expand_reference_container() {		jQuery("#footnote_references_container").show();        jQuery("#footnote_reference_container_collapse_button").text("-");	}    function footnote_collapse_reference_container() {        jQuery("#footnote_references_container").hide();        jQuery("#footnote_reference_container_collapse_button").text("+");    }	function footnote_expand_collapse_reference_container() {		if (jQuery("#footnote_references_container").is(":hidden")) {            footnote_expand_reference_container();		} else {            footnote_collapse_reference_container();		}	}    function footnote_moveToAnchor(p_str_TargetID) {        footnote_expand_reference_container();        var l_obj_Target = jQuery("#" + p_str_TargetID);        if(l_obj_Target.length) {            jQuery('html, body').animate({                scrollTop: l_obj_Target.offset().top - window.innerHeight/2            }, 1000);        }    }</script>]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/07/25/http-cache/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Web Application Firewall (WAF)</title>
+		<link>https://blog.alwaysdata.com/2018/07/24/web-application-firewall-waf/</link>
+		<comments>https://blog.alwaysdata.com/2018/07/24/web-application-firewall-waf/#respond</comments>
+		<pubDate>Tue, 24 Jul 2018 11:37:19 +0000</pubDate>
+		<dc:creator><![CDATA[David Testé]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Core]]></category>
+		<category><![CDATA[Performance]]></category>
+		<category><![CDATA[Proxy]]></category>
+		<category><![CDATA[Security]]></category>
+		<category><![CDATA[Updates]]></category>
+		<category><![CDATA[WAF]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2241</guid>
+		<description><![CDATA[Webapps security: what's a WAF, how does it works, and why are we deploying one?]]></description>
+				<content:encoded><![CDATA[<p>We had deployed on our production servers a new version of our HTTP reverse-proxy engine. It embeds a lot of new features. We cover them in this collection of blog posts.</p>
+<p>Here, we want to introduce you to the <em>Web Application Firewall</em> (WAF) that is now built-in our reverse-proxy.</p>
+<h2>What’s a WAF?</h2>
+<p>All software have bugs. It’s even true for web applications. They may present security holes, that may compromise their integrity. Attackers may want to get a full-control over the web application. We call this kind of attack an <em>infection</em>. If they compromise the service by itself, the consequences may be dramatic, from a simple unavailable website to a leak of personal data.</p>
+<p>Cybersecurity is a full-time job. By following some <a href="https://blog.alwaysdata.com/2018/03/27/secured-remote-access-the-hard-way/">good practices</a>, and by using a WAF, you may increase your security level. Good news! We now embed it directly inside our infrastructure, and using it is as simple as a click.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:27%;"><img alt="Gandalf GIF @Giphy" src="https://media.giphy.com/media/njYrp176NQsHS/giphy.gif"></div>
+<p>A <a href="https://en.wikipedia.org/wiki/Web_application_firewall">Web Application Firewall</a> is a firewall that protects your website from malicious requests. It parses the HTTP(s) requests and allows or deny them to access the server. It can block, alert or put in quarantine some of them if it considers it as malicious. It can also react to many attacks, to limit infections.</p>
+<figure class="embed-media__ad__medium">
+    <img src="https://blog.alwaysdata.com/wp-content/uploads/2018/06/waf.en_.png" alt="The request goes through the WAF to be analyzed. The firewall then decides to let the request go to the upstream server or to drop or isolate it (illustration)" class="aligncenter size-full wp-image-2417"><figcaption>The HTTP request goes through the WAF <small>(icons from The Noun Project)</small></figcaption></figure>
+<h2>Modsecurity WAF</h2>
+<p>Instead of developing a new solution from scratch, we choose the <a href="https://modsecurity.org/"><strong>ModSecurity</strong> WAF</a>, developed by <a href="https://www.trustwave.com/Company/SpiderLabs/">Trustwave SpiderLabs</a>. This project has an excellent reputation concerning security. It’s also an open source project, so we can stick to our policy to give you a hosting platform only powered by open source solutions. Finally, the ModSecurity community is very active, and it increases the way the project evolves day-by-day.</p>
+<p>ModSecurity is only a security engine. It uses some set of rules to analyze a request and mark it as malicious or not. We chose to use the open source ruleset from <strong><a href="https://coreruleset.org/">OWASP ModSecurity Core Rule Set</a></strong> (CRS) which offer an excellent level of protection for web applications. It also implements the <a href="https://www.owasp.org/images/7/72/OWASP_Top_10-2017_%28en%29.pdf.pdf">OWASP Top 10</a> with a shallow level of false-positive.</p>
+<h2>Configuring a WAF at alwaysdata</h2>
+<p>For a high convenience, the built-in WAF is available for every website hosted at alwaysdata individually.</p>
+<p>You find six profiles with various levels of protection:</p>
+<ol>
+<li>Disabled</li>
+<li>Basic
+<ul>
+<li>Force strict HTTP protocol</li>
+<li>Detect malicious bots</li>
+<li>Deny blacklisted IP addresses</li>
+</ul>
+</li>
+<li>Strong
+<ul>
+<li>Basic profile</li>
+<li>Detect Remote Code Execution (RCE)</li>
+<li>Detect <a href="https://en.wikipedia.org/wiki/Cross-site_scripting">Cross-Site Scripting (XSS)</a> attacks</li>
+<li>Detect <a href="https://en.wikipedia.org/wiki/SQL_injection">SQL Injections</a></li>
+</ul>
+</li>
+<li>Full
+<ul>
+<li>Strong profile</li>
+<li>Detect attacks for PHP language</li>
+<li>Detect attacks by Local File Injection (LFI)</li>
+<li>Detect attacks by <a href="https://en.wikipedia.org/wiki/File_inclusion_vulnerability">Remote File Injection (RFI)</a></li>
+</ul>
+</li>
+<li>WordPress
+<ul>
+<li>Full profile</li>
+<li>A WordPress’ specific ruleset</li>
+</ul>
+</li>
+<li>Drupal
+<ul>
+<li>Full profile</li>
+<li>A Drupal’s specific ruleset </li>
+</ul>
+</li>
+</ol>
+<p>Please note that activating your WAF may increase the latency time for every HTTP(s) request. This latency (about a few ms) increases with the robustness of the selected profile. It’s due to the parsing time of the request which increases with the number of OWASP rules to apply.</p>
+<p>To use it, select a protection profile in the <em>Sites → Edit → WAF</em> section.</p>
+<p><img src="https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-waf.en_.png" alt="Screenshot of the interface allowing you to enable the WAF in your web site" class="aligncenter size-full wp-image-2498 embed-media__ad__medium" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-waf.en_.png 1000w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-waf.en_-300x158.png 300w, https://blog.alwaysdata.com/wp-content/uploads/2018/07/screenshot-ad-ui-waf.en_-768x403.png 768w" sizes="(max-width: 1000px) 100vw, 1000px"></p>
+<p class="inset" data-title="Note">This feature is in a beta state yet.</p>
+<hr>
+<p>It’s our objective to give you a reliable, robust and safe environment for your hosting, without a mess of complexity. That’s why we want to give you a solid built-in WAF that you can enable with a simple click.</p>
+<p>After security, performance! In our next blog post, we introduce you to our new <a href="https://blog.alwaysdata.com/2018/07/25/http-cache/">HTTP cache</a> and its impact on your websites delivery.</p>
+]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/07/24/web-application-firewall-waf/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>We believe in open source projects</title>
+		<link>https://blog.alwaysdata.com/2018/06/08/we-believe-in-open-source-projects/</link>
+		<comments>https://blog.alwaysdata.com/2018/06/08/we-believe-in-open-source-projects/#comments</comments>
+		<pubDate>Fri, 08 Jun 2018 10:43:09 +0000</pubDate>
+		<dc:creator><![CDATA[m4dz]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Commercial]]></category>
+		<category><![CDATA[Community]]></category>
+		<category><![CDATA[Open source]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2229</guid>
+		<description><![CDATA[On how we do support open source initiatives.]]></description>
+				<content:encoded><![CDATA[<p>And all of a sudden, <a href="https://t.co/atjm1QQx23">Microsoft is acquiring GitHub</a>, infuriating the open source community in the last days. Behind the angry tweets, there’s a realization that a monopolistic situation may jeopardize the open source ecosystem. Seems about time to discuss why decentralization is necessary, and to present our initiative: the open source projects supporting.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:36%;"><img alt="Windy Mary Poppins GIF @Giphy" src="https://media.giphy.com/media/d2W6sksZ9o3qopUc/giphy.gif"></div>
+<h2>GitHub, Microsoft, Open source: why such a <del>shit</del>thunderstorm?</h2>
+<p><a href="https://github.com">GitHub</a> is a closed source platform based on an open source project: <a href="https://git-scm.com">Git</a>. Git is a <em>distributed version control system</em>. It allows developers, designers, editors, etc. to save their projects step by step on a timeline. They can keep track of what has been done, by whom, when, and they can roll-back some modifications if needed, or even start their projects again from a past-state<sup id="footnote_plugin_tooltip_1239_1" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_1239_1');">1)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_1239_1"></span>. While Git only brought the version control system, GitHub enriched it by adding social features like issue-tracking, documentation wikis, collaboration tools (the <em>pull-requests</em>), reviews, and many more.</p>
+<p>GitHub is a SaaS<sup id="footnote_plugin_tooltip_1239_2" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_1239_2');">2)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_1239_2"></span> solution, that is available in two flavors: freely for open source projects; under a fee or on-premise for private repositories in their enterprise edition. It quickly gained the attention from the open source community due to its simplicity of use, and to its “social” tools. It then grew as the central place for open source projects for the last ten years.</p>
+<p>Maybe you’ve already noticed the paradox. Let’s start again: Git is a <em>distributed</em> system; GitHub has grown as a <em>central</em> place. The neverending war about decentralizing the Web. Year after year, because many projects use the platform, and because it’s <em>easy</em>, it became the place to be when you released your open source project. It gave visibility, quick and simple access to an upcoming community. It even became a way to distribute <a href="https://twitter.com/ptit_fred/status/1003534597244772352"><em>dependencies as code</em></a>, many languages choosing to use it as a native backend (see Golang, Node.js, etc.)</p>
+<p>However, a single place to host everything means you take a considerable risk if it fails. As Hubert Sablonnière said:</p>
+<blockquote class="twitter-tweet" data-lang="fr">
+<p lang="en" dir="ltr"><img src="https://s.w.org/images/core/emoji/2.4/72x72/1f914.png" alt="🤔" class="wp-smiley" style="height: 1em; max-height: 1em;" /> We put all our eggs in the same basket for years and we’re only concerned when the basket is bought by someone lots of us don’t trust.</p>
+<p><img src="https://s.w.org/images/core/emoji/2.4/72x72/1f633.png" alt="😳" class="wp-smiley" style="height: 1em; max-height: 1em;" /> Whether you call it a SPOF or a monopoly, the problem was already there!<a href="https://twitter.com/hashtag/gitpocalypse?src=hash&amp;ref_src=twsrc%5Etfw">#gitpocalypse</a></p>
+<p>— Hubert SABLONNIÈRE <img src="https://s.w.org/images/core/emoji/2.4/72x72/1f60e.png" alt="😎" class="wp-smiley" style="height: 1em; max-height: 1em;" /> (@hsablonniere) <a href="https://twitter.com/hsablonniere/status/1003574175934681088?ref_src=twsrc%5Etfw">4 juin 2018</a></p></blockquote>
+<p><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+<p>So it is. Or so it seemed to be for many defenders of the free and open source philosophy when Microsoft recently announced its intention to acquire GitHub. Thousands of open source contributors have been there for many years, and many of them have seen <a href="https://twitter.com/fuzzleonard/status/1003643690701582336">how Microsoft acted in the past</a>. Even if Microsoft is now quite involved in open source contributions, some of them are frightened by this announcement, and start to think to what Microsoft has in mind for the future of GitHub. So far, they mainly spoke about cloud deployment integration, but what will happen to GitHub’s driven projects like Hubot, electron, Atom, etc.?.</p>
+<p>This acquisition painfully revives the debate around decentralization, this time from the developer’s side. Maybe some projects will independently host their sources to stay away from the GAFAM and their monopoly. Do not forget that Git is <em>decentralized</em> by default<sup id="footnote_plugin_tooltip_1239_3" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_1239_3');">3)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_1239_3"></span>. GitHub is <em>only</em> a platform. The choice is still yours.</p>
+<h2>So, what is alwaysdata doing for open source?</h2>
+<p>We believe in open source. We based our solution on the Django framework; every third-party software we use for hosting is open source; we sometimes release some of our internal devs (see <a href="https://blog.alwaysdata.com/2018/02/05/deploy-at-lightning-speed-with-git-hooks/">Deploy at lightning speed with Git hooks</a>). It was time to give back to the community: this is why we offer a free 10Go plan for open source projects.</p>
+<p>We think that many alternatives are more valuable than a single offer, even if this one is great. Earlier this year, we made a test with the <a href="https://github.com/sailorproject/sailor">Sailor framework</a> project: as we are one of the only hosting providers to bring support for Lua natively, they contacted us to know if we were able to conclude a partnership. We then started to think about what we could do for open source. We already had a 100Mo free plan, which was a bit small for open source projects; what if we offered a 10Go plan, for free?</p>
+<p>Open source projects, this is our contribution: if you need to find a way to host your project (repositories, websites, demos, etc.), you can do it on alwaysdata for free. We will never charge you for anything. We limit the account to host open source, active, projects only.</p>
+<p>We don’t expect the whole open source community comes to alwaysdata<sup id="footnote_plugin_tooltip_1239_4" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_1239_4');">4)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_1239_4"></span>. But the world needs as many good-minded, respectful alternative to other OSS compliant hosting solution as there may be. If you want to benefit from this offer, get in touch at community@alwaysdata.com!</p>
+<p>May the source be with you.</p>
+<div class="footnote_container_prepare">	<p><span onclick="footnote_expand_reference_container();">Notes</span><span style="display: none;">&nbsp;&nbsp;&nbsp;[ <a id="footnote_reference_container_collapse_button" style="cursor:pointer;" onclick="footnote_expand_collapse_reference_container();">+</a> ]</span></p></div><div id="footnote_references_container" style="">	<table class="footnote-reference-container">		<tbody>		<tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_1239_1">1.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_1239_1');">&#8593;</span></td>	<td class="footnote_plugin_text">it’s a very simplistic point of view, Git is even more powerful</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_1239_2">2.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_1239_2');">&#8593;</span></td>	<td class="footnote_plugin_text"><a href="https://blog.alwaysdata.com/2018/03/05/saas-paas-iaas-what-are-the-differences-and-what-does-it-matter/">Software as a Service</a></td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_1239_3">3.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_1239_3');">&#8593;</span></td>	<td class="footnote_plugin_text">yes, you can have <a href="https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes">multiple remotes for a repository</a>, and if you host all the history of your project locally, you don’t have to stick to a platform. Did you know it?</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_1239_4">4.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_1239_4');">&#8593;</span></td>	<td class="footnote_plugin_text">but we welcome any project who think our offer fit its needs</td></tr>		</tbody>	</table></div><script type="text/javascript">	function footnote_expand_reference_container() {		jQuery("#footnote_references_container").show();        jQuery("#footnote_reference_container_collapse_button").text("-");	}    function footnote_collapse_reference_container() {        jQuery("#footnote_references_container").hide();        jQuery("#footnote_reference_container_collapse_button").text("+");    }	function footnote_expand_collapse_reference_container() {		if (jQuery("#footnote_references_container").is(":hidden")) {            footnote_expand_reference_container();		} else {            footnote_collapse_reference_container();		}	}    function footnote_moveToAnchor(p_str_TargetID) {        footnote_expand_reference_container();        var l_obj_Target = jQuery("#" + p_str_TargetID);        if(l_obj_Target.length) {            jQuery('html, body').animate({                scrollTop: l_obj_Target.offset().top - window.innerHeight/2            }, 1000);        }    }</script>]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/06/08/we-believe-in-open-source-projects/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>About our community</title>
+		<link>https://blog.alwaysdata.com/2018/05/15/about-our-community/</link>
+		<comments>https://blog.alwaysdata.com/2018/05/15/about-our-community/#respond</comments>
+		<pubDate>Tue, 15 May 2018 11:37:49 +0000</pubDate>
+		<dc:creator><![CDATA[m4dz]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Communication]]></category>
+		<category><![CDATA[Community]]></category>
+		<category><![CDATA[Events]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2162</guid>
+		<description><![CDATA[Sharing with others and supporting diversity and communities: why and how we work to make tech a better place]]></description>
+				<content:encoded><![CDATA[<p>alwaysdata started in 2006 because we, as a web agency, hadn’t been able to found a hosting platform capable of fitting our needs. More than ten years later, and now that hosting in our core business, we’re still here with thousands of websites and applications hosted on our infrastructure, daily served to millions of users. Behind alwaysdata, there is a team of cool people that want to continue to do what they love to do: their best to provide you a sharped hosting platform. And have fun. A lot.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:33%;"><img alt="The IT Crowd @Gifbin" src="http://www.gifbin.com/bin/1236537281_the_it_crowd.gif"></div>
+<p>So, because our adventure could not exist without you, we decided to make more things (and more fun) with our community. Here’s a list of our first partnerships, the ones which open the way to many more projects!</p>
+<h2>Ready for space? Get your <em>Cyberspace Building Crew</em> seat!</h2>
+<p>Last year, <a href="https://twitter.com/mariejulien">Julien Dubedout</a>, a French designer who works on several projects (like the <a href="https://www.caliopen.org/en/">Caliopen messaging client</a>) had a discussion in which few people imagined some logos for Web workers, inspired by the <a href="https://history.nasa.gov/mission_patches.html">NASA Mission Patches</a>. Several months later, he started a crowdfunding campaign on Kickstarter for the <a href="https://www.kickstarter.com/projects/judbd/cyberspace-building-crew-embroidered-patches-and-s/description">Cyberspace Building Crew project</a> to make those patches and stickers reality.</p>
+<p>Unfortunately, the initial batch of designs misses the big one for us at alwaysdata: the one who represent hosting. We quickly decided to fix it! After ensuring Julien was OK to design a new patch for our job, we had unlocked a Sponsor pack to allow him to create the design for hosters. Here’s <a href="https://www.kickstarter.com/projects/judbd/cyberspace-building-crew-embroidered-patches-and-s/posts/2184358">what he drew for all hosters</a>: we’re now the <em>Space Station</em> for Web workers!</p>
+<p><img src="https://blog.alwaysdata.com/wp-content/uploads/2018/05/DdJ_QhcW0AEBYtW.png" alt="The cyberspace building crew patch for hosters: the space station" width="700" height="700" class="aligncenter size-full wp-image-2164 embed-media__ad__small" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/05/DdJ_QhcW0AEBYtW.png 700w, https://blog.alwaysdata.com/wp-content/uploads/2018/05/DdJ_QhcW0AEBYtW-150x150.png 150w, https://blog.alwaysdata.com/wp-content/uploads/2018/05/DdJ_QhcW0AEBYtW-300x300.png 300w" sizes="(max-width: 700px) 100vw, 700px"></p>
+<p>The pack allows us to get a bunch of those design both in patches and stickers formats. Feel free to get in touch during conferences to get one when they’re ready.</p>
+<h2>About conferences</h2>
+<p>As Web workers, we are constantly aware of new technologies, new frameworks, new solutions that will help you, developers, to build your services. We want to provide you the best support for the technologies you need on your backend. To be able to give you this support, we are learning a lot of things, and we’re doing a massive technological watch.</p>
+<p>Giving you feedback of what we learned is essential for our team, and that’s why we are currently writing more articles here, about various technical subjects. We’re also increasing our participation in many events, as attendees and <a href="https://blog.alwaysdata.com/2018/05/04/well-be-there-events-and-conferences-in-next-may-and-june-2018/">as speakers</a>.</p>
+<p>This isn’t good enough for us. We believe in diversity as well. So we decided to bring support to communities involved in diversity in tech. For the moment, it will consist of tickets we will offer for the conferences we are going to, starting with the upcoming <a href="http://takeoffconf.io/">TakeoffConf.io</a> and <a href="http://web2day.co/">Web2Day</a> events. We are organizing the last details to distribute those tickets. We will keep you informed on both <a href="http://twitter.com/alwaysdata">Twitter</a> and here, so stay tuned!</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:47%;"><img alt="Press Newspaper GIF @Giphy" src="https://media.giphy.com/media/v2xIous7mnEYg/giphy.gif"></div>
+<p>If you’re involved in communities that are engaged in diversity in tech, please get in touch in comments or at <a href="mailto:community@alwaysdata.com">community@alwaysdata.com</a>, so we could find a way to work together.</p>
+<p>Last news: a new bunch of <em>cool</em> alwaysdata t-shirts is coming, try to find <a href="https://twitter.com/m4d_z">m4dz</a> in tech events to get one <img src="https://s.w.org/images/core/emoji/2.4/72x72/1f609.png" alt="😉" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p>
+]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/05/15/about-our-community/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>GDPR at alwaysdata: what does it imply?</title>
+		<link>https://blog.alwaysdata.com/2018/05/07/gdpr-at-alwaysdata-what-does-it-implies/</link>
+		<comments>https://blog.alwaysdata.com/2018/05/07/gdpr-at-alwaysdata-what-does-it-implies/#respond</comments>
+		<pubDate>Mon, 07 May 2018 14:20:55 +0000</pubDate>
+		<dc:creator><![CDATA[m4dz]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Commercial]]></category>
+		<category><![CDATA[Communication]]></category>
+		<category><![CDATA[Data]]></category>
+		<category><![CDATA[Regulation]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2138</guid>
+		<description><![CDATA[Answers to what you're wondering about alwaysdata and GDPR when it becomes enforceable on May 25]]></description>
+				<content:encoded><![CDATA[<p>Voted in 2016 by the EU Parliament, the new <a href="http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=uriserv:OJ.L_.2016.119.01.0001.01.ENG&amp;toc=OJ:L:2016:119:TOC">General Data Protection Regulation</a> becomes enforceable on May 25, 2018. This new regulation is an essential change in European data protection law, and replace the EU Data Protection Directive (<a href="http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31995L0046">Directive 95/46/EC</a>) as well as the local laws relating to data protection.</p>
+<p>We, as a hosting provider, are involved in the GDPR and ensure our services are compliant with the terms of the regulation by May 2018. As we already claim, we <a href="https://blog.alwaysdata.com/2018/01/28/why-does-privacy-matter/">strongly believe in privacy</a>, and we encourage initiatives that increase the fundamental right of privacy for all citizens of the World.</p>
+<p>To get our customers informed about what is the GDPR, and how it applies to alwaysdata services, here’s our digest about it.</p>
+<h2>Lexicon</h2>
+<p>The GDPR itself introduces some terms that may need some explanation. Here’s a lexicon of what is in use in the regulation, our TOS, and this article as well.</p>
+<dl>
+<dt>Personal Data</dt>
+<dd>It defines any information related to an identified or unidentified natural person individually. It includes as well as civil data (birthdate, address, etc.) as technical data (IP, GPS coordinates, etc.)</dd>
+<dt>Data Controller</dt>
+<dd>The <em>Controller</em> is a natural or legal person, public authority, agency, or any body which determines the purposes and means of the processing of personal data. It is the one who decides what to do with the data.</dd>
+<dt>Data Processor</dt>
+<dd>The <em>Processor</em> is any body which processes the personal data on behalf of the <em>Controller</em></dd>
+<dt>DPO</dt>
+<dd>The Data Protection Officer (<em>DPO</em>) is the person who, inside any company, ensure data processing operation compliance with all applicable European regulations. The DPO is entirely independent of the others company’s operations.</dd>
+<dt>Subcontractor</dt>
+<dd>Any partner that, for purposes of the personal data processing, are mandated by the <em>data processor</em> and may have access to personal data transmitted by the processor. It must be GDPR compliant too, and the client must have been informed that the subcontractor may access its personal data.</dd>
+</dl>
+<h2>What is the <em>GDPR</em>?</h2>
+<p>The <em>General Data Protection Regulation</em> (GDPR) is the new European privacy law that replaces any existing law about data privacy in the EU territory. It takes precedence on any local law as well as the EU Data Protection Directive. It doesn’t introduce significant changes but is intended to enhance and harmonize EU data protection laws for any EU citizen. It applies worldwide if your data is located inside the EU, or if your service manipulates EU citizen’s personal data. It becomes enforceable on May 25, 2018.</p>
+<p>It mainly describes some topics:</p>
+<h3>Protection</h3>
+<p>Any process of personal data is prohibited unless expressly permitted.</p>
+<h3>Isolation</h3>
+<p>Companies may only collect and process personal data for specific purposes. They must be clearly outlined, and the future use of the data must be documented.</p>
+<h3>Data minimization</h3>
+<p>Companies must collect as little data as possible, and as much as necessary. It also means that “blind” data collection for unspecified future purposes is prohibited.</p>
+<h3>Transparency</h3>
+<p>The data processing should be understandable and comprehensible to anyone that is concerned. Companies are required to provide crystal clear information about what data they use, and for what purposes they use it.</p>
+<h3>Confidentiality</h3>
+<p>Companies need to ensure and prove that they technically protect the personal data of their clients and employees. It means that data must be protected against unauthorized processing, alteration, theft, destruction, etc.</p>
+<h2>Who does the GDRP apply to?</h2>
+<p>The GDPR applies to any company or organization operating in the EU, or processing EU citizen’s personal data.</p>
+<h2>What role alwaysdata will endorse in the GDPR context?</h2>
+<p>alwaysdata can be considered both as a <em>data processor</em> and a <em>data controller</em>. The former because most frequently we just “processing” our customer’s data behalf of their control, as we host your apps, websites, and services; the latter because we also own information about our clients in our system, i.e., for your contracts information.</p>
+<h2>alwaysdata commitments as a processor</h2>
+<ul>
+<li>We won’t process any data without the explicit order of the <em>data controller</em>.</li>
+<li>Data are kept inside EU; provided customers do not select a location in a geographical area outside the EU. This location may evolve, always under the controller of the customer itself.</li>
+<li>We inform customers of any enlisted subcontractor which access their data, which data is concerned and for what purposes.</li>
+<li>We apply security standards to protect data lifecycle.</li>
+<li>We will report publicly any incident in case of data breach without undue delay.</li>
+<li>We provide documentation to prove our conformity to GDPR.</li>
+</ul>
+<h2>alwaysdata commitments as a data controller</h2>
+<ul>
+<li>We limit the personal data collected to what is strictly necessary when you order a service, for billing or support purposes.</li>
+<li>We only use personal data to what it is contractually intended.</li>
+<li>We do not keep data when it’s not relevant.</li>
+<li>We do not transfer data outside of EU without your explicit consent.</li>
+<li>We implement appropriate technical measures to ensure a high degree of security on personal data.</li>
+</ul>
+<h2>alwaysdata’s security measures</h2>
+<p>We distinguish two kinds of security measures: those who concern the data stored by the customer, and the security of the infrastructures that store the information.</p>
+<p>About data stored by our customers, the customer itself is solely responsible for its data, by ensuring the security of its service, website, application, and whatever it deploys on the alwaysdata infrastructure.</p>
+<p>About alwaysdata’s infrastructures, we are committed to ensure optimal security. It means that physical access to the systems is strongly regulated; software are monitored, patched, and updated with security releases; and we use technical devices to prevent attacks and intrusions.</p>
+<h2>What has alwaysdata been doing to prepare for GDPR</h2>
+<p>alwaysdata was already compliant with the 95/46/EC Directive; we have built on the existing. We mainly worked on a new version of our TOS to ensure they have reflected our obligations regarding the GDPR. Technically, we have been following the Privacy by Design principles since we started, and we have never collected any information we didn’t explicitly need. We have been GDPR compliant for a while now. Time for the compliance gig!</p>
+<h3>The principles of <em>Privacy by Design</em> and <em>Privacy by Default</em></h3>
+<p>We already have design and development processes that are <em>Privacy by Design</em> and <em>Privacy by Default</em> compliant. Privacy has been one of our main concerns for a while now; you can see a talk given by <em>m4dz</em>, our tech evangelist, at the last Breizhcamp 2018 edition, about <a href="https://youtu.be/H6bFjYwEi-g">Privacy by Design</a><sup>[fr]</sup>.</p>
+<h3>Extensive information rights, and right to deletion</h3>
+<p>We already delete personal data at account deletion. We keep nothing on alwaysdata’s side, except what is needed for legal aspects, like data transactions and logs, for a limited amount of time.</p>
+<h3>The right to data portability</h3>
+<p>Our already available for a while <a href="https://api.alwaysdata.com/">API</a> allows you to access all your information stored in the alwaysdata’s system. You can also ask us about your personal data by sending a mail to <a href="mailto:contact@alwaysdata.com">contact@alwaysdata.com</a>.</p>
+<h3>No linking of consents</h3>
+<p>We do not transmit any information to any subcontractor rather than the information mentioned in our TOS for support purposes, without your explicit consent.</p>
+<h2>What must customers do?</h2>
+<p>As far as alwaysdata is concerned, you have nothing to do besides reading and accept our new TOS. We also strongly encourage our customers and partners to start preparing for the GDPR now. If you already have robust security and good data privacy practices, the shift should be simple.</p>
+<p>You can access our new <a href="https://www.alwaysdata.com/en/contracts/">TOS here</a>. Feel free to ask in the comments if you have any question about the EU Data Protection in <em>alwaysdata</em>.</p>
+]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/05/07/gdpr-at-alwaysdata-what-does-it-implies/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>We’ll be there: events and conferences in next may and june 2018</title>
+		<link>https://blog.alwaysdata.com/2018/05/04/well-be-there-events-and-conferences-in-next-may-and-june-2018/</link>
+		<comments>https://blog.alwaysdata.com/2018/05/04/well-be-there-events-and-conferences-in-next-may-and-june-2018/#respond</comments>
+		<pubDate>Fri, 04 May 2018 08:59:33 +0000</pubDate>
+		<dc:creator><![CDATA[m4dz]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Events]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2124</guid>
+		<description><![CDATA[Want to meet during May or June 2018? Here's our next scheduled events!]]></description>
+				<content:encoded><![CDATA[<p>It’s been a long time since our last post. We are actively preparing new releases and articles. We’re also involved in many events and conferences we need to prepare.</p>
+<p>To be sure none of you will miss the rendezvous, here a quick list of where we will be:</p>
+<ul>
+<li>May 17, Sophia Antipolis: <a href="http://rivieradev.fr/programme">RivieraDev</a>, La Crypto pour les devs (regular talk, FR)</li>
+<li>June 1, Paris: <a href="https://www.dotscale.io/">DotScale</a>, Automate deployment using Git, compared to other solutions (lightning talk, EN)</li>
+<li>June 6, Paris: <a href="https://www.meetup.com/Vuejs-Paris/">Vue.js meetup</a>, Use Atomic Design in Vue.js components development cycle (regular talk)</li>
+<li>June 8, Lille: <a href="https://www.takeoffconf.io/schedule">Takeoff Conf</a>, From ground control to the moon: choose your hosting partner (regular talk, EN)</li>
+<li>June 10, Lille: <a href="http://rencontres.django-fr.org/2018/">DjangoCong</a>, <del>La Crypto pour les devs</del> <em>update</em>: Déploiement continu et feature-flipping, uniquement avec Git (regular talk, FR)</li>
+<li>June 15, Nantes: <a href="https://web2day.co/speakers/">Web2Day</a>, Privacy by Design (regular talk, FR)</li>
+<li>June 28–29, Choisy-le-Roi: <a href="https://passageenseine.fr/">Pas Sage en Seine (PSES)</a> Architecture Zero Knowledge et Webapps : est-ce possible ? (regular talk, FR); Full-remote : guide de survie en environnement distant (regular talk, FR) ; Privacy by design (regular talk, FR)</li>
+</ul>
+<p><a href="https://twitter.com/m4d_z">@m4d_z</a>, our Tech Evangelist, will talk at the events above. Get in touch with him if you’re there!</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:41%;"><img alt="robert downey jr handshake GIF @Giphy" src="https://media.giphy.com/media/4Bam0uYVzWeY0/giphy.gif"></div>
+]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/05/04/well-be-there-events-and-conferences-in-next-may-and-june-2018/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Secured remote access, the hard way</title>
+		<link>https://blog.alwaysdata.com/2018/03/27/secured-remote-access-the-hard-way/</link>
+		<comments>https://blog.alwaysdata.com/2018/03/27/secured-remote-access-the-hard-way/#comments</comments>
+		<pubDate>Tue, 27 Mar 2018 21:01:31 +0000</pubDate>
+		<dc:creator><![CDATA[m4dz]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Security]]></category>
+		<category><![CDATA[SSH]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2072</guid>
+		<description><![CDATA[Securing its remote access is hard, here are our tips to keep the door locked but not to be locked out anyway]]></description>
+				<content:encoded><![CDATA[<p>I recently <a href="https://blog.alwaysdata.com/2018/03/05/saas-paas-iaas-what-are-the-differences-and-what-does-it-matter/">told you about the choices you have to make</a> for your sysadmin stack. In fact, these choices impact your whole technical chain, from your OS and its setup to the system architecture. It means you have to adjust the cursor between maintaining each element by yourself or relying on a partner to manage them for you.</p>
+<p>Securing remote access goes from trivial things to less-understandable points for non-experts. Consider this article as primary guidance, and feel free to browse some links to more in-depth articles<sup id="footnote_plugin_tooltip_7174_1" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_1');">1)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_1"></span><sup id="footnote_plugin_tooltip_7174_2" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_2');">2)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_2"></span>.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:65%;"><img alt="Cat GIF @Giphy" src="https://media.giphy.com/media/mo8MAe2maHrva/giphy.gif"></div>
+<hr>
+<p><em>TL;DR</em>: security is a vast and complex realm of knowledge, and may be complex. If you only want to know how to improve your remote access setup to <em>alwaysdata</em> servers, <a href="#be-safe-be-smart">read the section about using secured methods</a>.</p>
+<hr>
+<h2>Don’t let anybody enter your home</h2>
+<p>You run your application on remote servers. It allows you to provide access to your service from anywhere. There’s usually no physical access for you to those machines<sup id="footnote_plugin_tooltip_7174_3" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_3');">3)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_3"></span>. So, you use remote access to those machines. Most of the time, it’s through a remote shell, something like SSH. What SSH does is to provide you access to both a shell and a low-level files-manager on your remote machine. Consider it as a door to your living room. Not taking care of it is a nonsense. Never do this at home, kids.</p>
+<p>An important security concern is the way you manage remote access to your production servers. Here too, you may want to do it, or you may prefer to use a service that embeds a secured setup for you. At <em>alwaysdata</em>, we think that using a service that does it for you is often the best choice, but some parts remain for you to handle. Because this part is sometimes difficult to understand and to maintain, we want to give you some advice on how to secure your access correctly.</p>
+<p>The right level of security is the one you’re able to understand and to manage. So, to make sure you’ve got all the expertise needed to be safe at home, let’s talk a bit about what you have to know to protect your remote access and to avoid giving anybody access. My goal is not to turn you into a security expert; it is merely to ensure you know the basics (and probably a bit more) about security and why it matters.</p>
+<p>Fortunately, common SSH servers come with a default configuration mostly secured. <a href="https://www.openssh.com/">OpenSSH</a>, which is the default SSH server in most platforms, does it. But distributing a default configuration means that maintainers need to address the common use-cases rather than the high-level secured setup. This setup will probably lock out 90% of the malicious users. Think of it as adding a standard robust door to your mansion; it is better than nothing, but it is still not an armored door. We want to consider how to strengthen this default setup.</p>
+<h2>Be Safe, Be Smart</h2>
+<p>Securing its remote access implies to take care of a few digital concerns, mainly because you stay in charge of the client parts. Even if you have a properly secured server, you may get into troubles if your client-side protection is too weak. Let’s take a look at your responsibility.</p>
+<h3>Use SSH Keys to connect</h3>
+<p>We would recommend using SSH key rather than password authentication for SSH remote access. This way, you can efficiently manage who can access your remote server, on which device, and revoke access in case of emergency<sup id="footnote_plugin_tooltip_7174_4" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_4');">4)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_4"></span>. It’s a good idea to have one pair of keys<sup id="footnote_plugin_tooltip_7174_5" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_5');">5)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_5"></span> for each user on each device. It gives you more flexibility to revoke access when a device is lost or stolen, instead of revoking the complete user access.</p>
+<p>To know how to generate a secure, updated key, take a look at the <a href="#rely-on-strong-ssh-key-with-ed25519">ed25519 key format section</a>.</p>
+<h3>Avoid password connection</h3>
+<p>Passwords can’t be secured enough to be the only protection against malicious access. You should use a <a href="https://www.cyberciti.biz/tips/ssh-public-key-based-authentication-how-to.html">key-based login</a> as mentioned above to make sure that your remote user is protected, e.g., from a brute-force attack that will try to crack your user’s password.</p>
+<p>In <em>alwaysdata</em>, the SSH connection using password is disabled by default, and only connections using SSH keys is allowed. You must have to write your public key in the <code>~/.ssh/authorized_keys</code> file manually<sup id="footnote_plugin_tooltip_7174_6" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_6');">6)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_6"></span>. If you need to enable password-access nonetheless (e.g., to transfer your public key first), check the box to <em>authorize connection using password</em>. Please keep in mind that it’s a less-secured method, so turn it off when you don’t need it.</p>
+<p>If you run your personal server, <strong>after copying your public key on the server</strong>, <a href="https://www.cyberciti.biz/faq/how-to-disable-ssh-password-login-on-linux/">disable password-based login in <code>sshd</code> configuration</a>.</p>
+<p></p><pre class="crayon-plain-tag"># /etc/ssh/sshd_config
+
+AuthenticationMethods public key
+PubkeyAuthentication yes
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+UsePAM no</pre><p></p>
+<p>It also seems that some users/administrators think that not protecting their accounts with a password is a good idea. Personally, I think that even the weakest password is better than no password at all. In any case, you must avoid allowing those no-password users to log in remotely without any protection.</p>
+<p></p><pre class="crayon-plain-tag"># /etc/ssh/sshd_config
+
+PermitEmptyPasswords no</pre><p></p>
+<p>We forbid empty passwords on <em>alwaysdata</em> servers.</p>
+<h3>Use strong passphrases</h3>
+<p>Using strong keys is essential, but you can’t rely on them without securing them. It means that each SSH key must be passphrase-protected with a unique, dedicated, reliable password. It also applies to your user’s login access, so feel free to use the same method to set up your user’s password.</p>
+<p>I have two methods to generate random passphrases in CLI<sup id="footnote_plugin_tooltip_7174_7" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_7');">7)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_7"></span>:</p>
+<p></p><pre class="crayon-plain-tag">$ openssl rand -base64 32
+$ gpg --gen-random --armor 1 32</pre><p></p>
+<p>You should have <code>openssl rand</code> or <code>gpg</code> (or both) installed on your system. Make sure to check your password resilience against brute-force attacks with the <a href="https://howsecureismypassword.net/">How Secure Is My Password</a> tool. You don’t want a weak password to compromise your whole business security.</p>
+<h3>Use cryptographic hardware</h3>
+<p>If you’re concerned about secure remote access, you should consider using certificate client authentication coupled with a hardware device, so you keep it safe from attackers and unaccessible from your computer. You can then use some cryptographic hardware device like <a href="https://shop.nitrokey.com/shop/product/nitrokey-pro-3">Nitrokey Pro</a> or <a href="https://www.yubico.com/products/yubikey-hardware/yubikey4/">YubiKey 4</a> to store your keys/certificates and manage the client authentication for you.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:49%;"><img alt="@Giphy" src="https://media.giphy.com/media/cdGQHR4Qzefx6/giphy.gif"></div>
+<h2>Stay up-to-date</h2>
+<h3>Keep your SSH server updated</h3>
+<p>SSH security breaches are regularly discovered, and patched quickly by the maintainers and contributors of the projects. Keeping your server updated is necessary. It also implies you keep your <em>SSH client</em> up-to-date too. As I’m writing this blog post, the current <a href="https://www.openssh.com/">OpenSSH</a> version is <a href="https://www.openssh.com/txt/release-7.6">7.6, released Oct. 3, 2017</a>. Check your current version:</p>
+<p></p><pre class="crayon-plain-tag">$ ssh -V
+OpenSSH_7.6p1, OpenSSL 1.1.0g  2 Nov 2017</pre><p></p>
+<h3>Use SSH v2 protocol</h3>
+<p>SSH comes in <a href="http://www.snailbook.com/faq/ssh-1-vs-2.auto.html">two versions of its protocol</a>. The current, modern one, is the v2. It is more secure, more flexible, and even more-encrypted in all steps of the process. Almost every client has supported the v2 for a long time, so feel free to disable v1 and only serve the latest if you run your server.</p>
+<p></p><pre class="crayon-plain-tag"># /etc/ssh/sshd_config
+
+Protocol 2    # defaults to "2,1"</pre><p></p>
+<p>For legacy reasons, the v1 was still available on <em>alwaysdata</em> servers. Since the release of OpenSSH 7.6, the v1 protocol is now removed from the codebase (unavailable even in compilation flags), so stay up to date.</p>
+<h3>Rely on strong SSH Key with ED25519</h3>
+<p>You can use several key formats for your SSH Keys. Preferably, you should use the <a href="https://ed25519.cr.yp.to/"><code>ED25519</code></a> algorithm, as it is <a href="https://security.stackexchange.com/questions/50878/ecdsa-vs-ecdh-vs-ed25519-vs-curve25519/50890#50890">the best choice nowadays</a> regarding <a href="https://blog.g3rt.nl/upgrade-your-ssh-keys.html">security</a>. Yes, it’s relatively new, but it’s <a href="https://ianix.com/pub/ed25519-deployment.html">well supported</a> in production right now, and as you manage the server side (or rely on a trusted, dedicated partner), compatibility may not be a big deal.</p>
+<p></p><pre class="crayon-plain-tag">$ ssh-keygen -a 1000 -t ed25519 -C yourmail@yourmachine.name</pre><p></p>
+<p>It will:<br>
+— generate a new key<br>
+— <code>-a</code> set the number of rounds for the function derivation to 1000, which increases security but also the login time. If a quick login is critical to you, consider decreasing this value (the default is 16; 100 offers robust protection against brute-force attacks)<br>
+— <code>-t</code> force the format to use the <code>ed25519</code> algorithm<br>
+— <code>-C</code> identify your key with your username/device</p>
+<h2>Network protection</h2>
+<p>This section contains advanced tips for a sysadmin people that want to highly secure their environment. They may or may not apply, depending on your context and your threat models. In fact, the former sections cover most use-cases of remote access. But you may want to reinforce your security.</p>
+<h3>Firewall the SSH TCP Port</h3>
+<p>If you always connect from a known set of dedicated IPs to your servers, so it’s useless (and dangerous) to let any incoming connection try to log in. You should restrict SSH login to known addresses in your firewall rules.</p>
+<p></p><pre class="crayon-plain-tag">$ iptables -A INPUT -p tcp -s 10.111.111.10 -d 192.168.1.12 --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$ iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT</pre><p></p>
+<p>Here, we allow connections from the IP <code>10.111.111.10</code> (you have to use your own, obviously) to the SSH port <code>22</code> in TCP only on the local machine address (<code>192.168.1.12</code>) using <a href="https://linux.die.net/man/8/iptables">iptables</a><sup id="footnote_plugin_tooltip_7174_8" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_8');">8)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_8"></span>. Firewalling can be hard, but it’s one of your stronger defenses against attackers.</p>
+<p>Some of our machines, which handle parts of <em>alwaysdata</em> architecture not aimed to be exposed publicly are IP filtered like that. If you’ve got a <a href="https://www.alwaysdata.com/en/pricing/#vps">VPS</a> or <a href="https://www.alwaysdata.com/en/pricing/#dedicated">Dedicated Server</a> offer, you can activate <a href="https://admin.alwaysdata.com/firewall/">IP Filtering in your admin panel</a> to ensure only your IPs are available to connect to your servers.</p>
+<h3>Blacklist SSH crackers and brute-force attackers</h3>
+<p>One of the problems with attackers trying to get access to your machine is that they will request access a huge number of times. Even if they don’t get access, it will overload your SSH server, maybe slow down your system, and perhaps result in DDoS. To prevent that, you can use your firewall to ban the attackers’ IPs. Indeed, you won’t blacklist them manually. Instead, you can rely on tools like <a href="https://www.fail2ban.org/">fail2ban</a>, <a href="https://www.cyberciti.biz/faq/block-ssh-attacks-with-denyhosts/">DenyHosts</a>, or a custom rule in iptables or <a href="https://www.cyberciti.biz/faq/howto-limiting-ssh-connections-with-ufw-on-ubuntu-debian/">ufw</a> to temporarily ban them.</p>
+<p>In <em>alwaysdata</em> architecture, SSH servers are protected by a <em>fail2ban</em> filter.</p>
+<h3>Change SSH port and limit port binding</h3>
+<p>OpenSSH listens to port <code>22</code> by default. It makes it vulnerable to remote machine attacks because attackers will first try this port to target SSH breaches. If you don’t care about compatibility and use machines you’re comfortable with, don’t hesitate to change the default port and the binding addresses to which the servers are listening to to decrease the attack surface.</p>
+<p></p><pre class="crayon-plain-tag"># /etc/ssh/sshd_config
+
+Port 2002
+ListenAddress 192.168.1.5</pre><p></p>
+<h3>Port knocking</h3>
+<p>This is one of the most fun tips.</p>
+<p>It’s a method that forces remote users to try to connect to a series of ports to trigger a rule in your firewall that will open the access for its IP to the SSH port. By default, the firewall rejects connections to the SSH port. Using a dedicated tool (<em>knock</em>), you will contact your server to a sequence of ports. If the series is correct, the firewall is updated, and a new rule is added to allow only your client IP to connect through SSH. Simple, smart, efficient<sup id="footnote_plugin_tooltip_7174_9" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_9');">9)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_9"></span>). It uses the <a href="https://www.cyberciti.biz/faq/debian-ubuntu-linux-iptables-knockd-port-knocking-tutorial/">knockd</a> tool.</p>
+<h2>Misc</h2>
+<p>Here’s our last tips section. Congrats if you read the article so far! It presents some extra setup available to increase a little bit your security. It’s often useless, but it’s a good know-how.</p>
+<h3>Trust SSH Host Keys</h3>
+<p>To be trusted by clients, SSH server presents a key that allows you to authenticate it. This key is generated automatically and belongs to the server only. There’s one key per supported algorithm, and they are presented to the client depending on the setup. You can compare this key at your first connection with the one provided in your <a href="https://admin.alwaysdata.com/ssh/">SSH admin section</a>.</p>
+<p>As modern clients support the <a href="https://security.stackexchange.com/questions/50878/ecdsa-vs-ecdh-vs-ed25519-vs-curve25519/50890#50890">ED25519 algorithm</a>, your server can serve only this one and disable others to force its use.</p>
+<p></p><pre class="crayon-plain-tag"># /etc/ssh/sshd_config
+
+#HostKey /etc/ssh/ssh_host_dsa_key
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key</pre><p></p>
+<p>In <em>alwaysdata</em> setup, we still keep all formats available for compatibility reasons.</p>
+<h3>Disable <code>root</code> access</h3>
+<p>Your <code>root</code> user is the super admin user in your *nix system. It is the one allowed to do everything on the machine, even wipe it entirely<sup id="footnote_plugin_tooltip_7174_10" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_10');">10)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_10"></span>. So, it should be used _carefully_. Most of the time, you do _not_ need to be rooted to do what you want, and your system permissions must allow you to execute your commands safely. So, it is a good idea to disable the root user access remotely<sup id="footnote_plugin_tooltip_7174_11" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7174_11');">11)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7174_11"></span>. This way, even if a malicious user gets access to the server, that user won’t be able to gain root privileges easily.</p>
+<p></p><pre class="crayon-plain-tag"># /etc/ssh/sshd_config
+
+PermitRootLogin no</pre><p></p>
+<h3>Idle log out timeout</h3>
+<p>It can be a good idea to limit the time a user can be maintained in your system without any activity, to prevent later malicious use. Decrease the number of idle connection allowed and the inactivity time to make sure nobody can stay longer than needed.</p>
+<p></p><pre class="crayon-plain-tag"># /etc/ssh/sshd_config
+
+ClientAliveInterval 300
+ClientAliveCountMax 0</pre><p></p>
+<h3>Chroot users</h3>
+<p>Users logged in remotely can access the whole system, sandboxed by the system and files permissions. Chroot users in their home directory could be a good idea. Unfortunately, it’s not as trivial as it seems, and it may require relying on tools like <a href="https://www.cyberciti.biz/tips/rhel-centos-linux-install-configure-rssh-shell.html">rssh</a>. It may be a complicated setup, but if your threat model implies a risk of data leakage, it’s a good idea.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:27%;"><img alt="wonder woman shield GIF @Giphy" src="https://media.giphy.com/media/l0HlymZ7Jv6JoiYjC/giphy.gif"></div>
+<hr>
+<p>I hope this long blog post allowed you to understand a little bit more about what matters regarding remote access security. As it relies on cryptographic strengths, it may be hard to manage the whole security of your stack by yourself. Pieces of advice here are what they are: safety tips to increase your security. Please never underestimate how hard it is to keep a whole system safe, and never begrudge working with competent partners who are there to help you. One of our job at <em>alwaysdata</em> is to do it for you. We ensure the cursor is correctly adjusted to give you flexibility without compromising security.</p>
+<p>If you want to talk a bit about security, I’ll be at Rennes next Mar. 29, 2018 for <a href="http://www.breizhcamp.org/conference/programme/">the Breizhcamp conference</a> to talk about cryptography and development. See you there!</p>
+<div class="footnote_container_prepare">	<p><span onclick="footnote_expand_reference_container();">Notes</span><span style="display: none;">&nbsp;&nbsp;&nbsp;[ <a id="footnote_reference_container_collapse_button" style="cursor:pointer;" onclick="footnote_expand_collapse_reference_container();">+</a> ]</span></p></div><div id="footnote_references_container" style="">	<table class="footnote-reference-container">		<tbody>		<tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_1">1.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_1');">&#8593;</span></td>	<td class="footnote_plugin_text"><a href="http://duckduckgo.com/">duckduckgoing</a>/<a href="http://qwant.com/">qwanting</a> the missing resources is also a great way to get more information</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_2">2.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_2');">&#8593;</span></td>	<td class="footnote_plugin_text">feel free to ask questions in the comments <img src="https://s.w.org/images/core/emoji/2.4/72x72/1f642.png" alt="🙂" class="wp-smiley" style="height: 1em; max-height: 1em;" /> </td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_3">3.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_3');">&#8593;</span></td>	<td class="footnote_plugin_text">and you genuinely don’t want to run across the world to connect and repair your systems</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_4">4.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_4');">&#8593;</span></td>	<td class="footnote_plugin_text">or when your collaborators quit</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_5">5.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_5');">&#8593;</span></td>	<td class="footnote_plugin_text">public and private</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_6">6.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_6');">&#8593;</span></td>	<td class="footnote_plugin_text">we’ll soon provide a solution in your admin panel to fill your public key right there</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_7">7.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_7');">&#8593;</span></td>	<td class="footnote_plugin_text">store them securely in a <a href="https://www.passwordstore.org/">password</a> <a href="https://keepass.info/">manager</a>, of course</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_8">8.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_8');">&#8593;</span></td>	<td class="footnote_plugin_text">you can also take a look at <a href="http://man.he.net/man8/ufw">ufw</a> to write your firewalling rules</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_9">9.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_9');">&#8593;</span></td>	<td class="footnote_plugin_text">because we can :</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_10">10.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_10');">&#8593;</span></td>	<td class="footnote_plugin_text">never, ever, <code>rm -rf /</code> blindly</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7174_11">11.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7174_11');">&#8593;</span></td>	<td class="footnote_plugin_text">it is also a good idea to disable it locally and always use <code>sudo</code> to execute root commands</td></tr>		</tbody>	</table></div><script type="text/javascript">	function footnote_expand_reference_container() {		jQuery("#footnote_references_container").show();        jQuery("#footnote_reference_container_collapse_button").text("-");	}    function footnote_collapse_reference_container() {        jQuery("#footnote_references_container").hide();        jQuery("#footnote_reference_container_collapse_button").text("+");    }	function footnote_expand_collapse_reference_container() {		if (jQuery("#footnote_references_container").is(":hidden")) {            footnote_expand_reference_container();		} else {            footnote_collapse_reference_container();		}	}    function footnote_moveToAnchor(p_str_TargetID) {        footnote_expand_reference_container();        var l_obj_Target = jQuery("#" + p_str_TargetID);        if(l_obj_Target.length) {            jQuery('html, body').animate({                scrollTop: l_obj_Target.offset().top - window.innerHeight/2            }, 1000);        }    }</script>]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/03/27/secured-remote-access-the-hard-way/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>SaaS, PaaS, IaaS: what are the differences and what does it matter?</title>
+		<link>https://blog.alwaysdata.com/2018/03/05/saas-paas-iaas-what-are-the-differences-and-what-does-it-matter/</link>
+		<comments>https://blog.alwaysdata.com/2018/03/05/saas-paas-iaas-what-are-the-differences-and-what-does-it-matter/#comments</comments>
+		<pubDate>Mon, 05 Mar 2018 18:55:49 +0000</pubDate>
+		<dc:creator><![CDATA[m4dz]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Commercial]]></category>
+		<category><![CDATA[Dedicated Servers]]></category>
+		<category><![CDATA[Shared servers]]></category>
+		<category><![CDATA[VPS servers]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=2059</guid>
+		<description><![CDATA[IaaS, PaaS, SaaS: what's behind those names, and how to compare hosting offers to make the right choice?]]></description>
+				<content:encoded><![CDATA[<p>We often get legitimate questions from people who don’t know the <em>alwaysdata</em> solution in-depth. Among those, a recurrent one is about our pricing, which is often due to users not understanding our offerings. We’re aware that this happens because what we do isn’t typical for hosts. So<sup id="footnote_plugin_tooltip_6870_1" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_6870_1');">1)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_6870_1"></span>, let’s take a look at what we’re doing here.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:36%;"><img alt="question GIF @Giphy" src="https://media.giphy.com/media/PvzYOB9VuHF0Q/giphy.gif"></div>
+<h2>What’s the Cloud (computing)?</h2>
+<p>In data centers, you will find servers<sup id="footnote_plugin_tooltip_6870_2" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_6870_2');">2)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_6870_2"></span>, network systems, and cables (a lot!) to plug them together. They may also have storage systems like <a href="https://en.wikipedia.org/wiki/Storage_area_network"><abbr title="Storage Area Network">SAN</abbr>s</a> devices and other various kinds of devices. Data centers are not just identical machines <em>ad infinitum</em>.</p>
+<p>When you access a remote service like a website, an API, your e-mail, or any other network-based solution, you reach one of those servers. Request go through routers, switches, and cables<sup id="footnote_plugin_tooltip_6870_3" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_6870_3');">3)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_6870_3"></span>. The server handles your request, processes the data, maybe by pulling it from a remote storage system or a distant database, and returns its response.</p>
+<p>In order to host that kind of solution<sup id="footnote_plugin_tooltip_6870_4" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_6870_4');">4)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_6870_4"></span>, you have to push your code to one of those servers. Your app will then be available online to your users.</p>
+<p>To run your app codebase, you will need a complex stack of tools installed on the server. Reality means that someone needs to manage those tools. And that’s the point about what we’re doing at <em>alwaysdata</em>: we not only rent you a machine, we also manage it for you.</p>
+<h2>Behind the fog</h2>
+<p>As we said, in-the-cloud servers are computers. Let’s have a look at what we need to run them:</p>
+<p><em>TL;DR</em>: This part is dense (like British fog). If you don’t want to know every detail, I suggest you go to the <a href="#infrastructure-platform-software-as-a-service-whats-the-difference">next part</a>. To be short: <em>Cloud</em> is infrastructure where data centers host servers, which embed all the stacks you need to power your own application.</p>
+<h3>A data center</h3>
+<p>Maybe it’s obvious, maybe it’s not, but we need a place to install, power-plug, and run our servers. The data center physically hosts the machines, and supplies everything they need to run (electricity, controlled temperature, secured access, etc.).</p>
+<h3>Networks</h3>
+<p>We need to connect the servers to the rest of the world, so a network infrastructure is mandatory. It includes routers (to connect to network providers), switches (to distribute the network to the machines), firewalls and anti-DDOS protections, sensors, etc.</p>
+<h3>Servers</h3>
+<p>Basically, yeah, we need several machines in order to rent the machines. So physical servers are available, which provide CPU, memory, storage, possibly GPU computing, etc. They can be built by different manufacturers, with different technical features (CPU models or architecture, RAM size, etc.). These machines are the raw computing power of the infrastructure.</p>
+<h3>Isolation (Virtualization / Containerization<sup id="footnote_plugin_tooltip_6870_5" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_6870_5');">5)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_6870_5"></span>)</h3>
+<p>This is low-level software executed in the kernel space or similar that runs virtual machines or containers<sup id="footnote_plugin_tooltip_6870_6" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_6870_6');">6)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_6870_6"></span> and distributes hardware resources (memory, CPU time or power, disk space, networks, etc.). It virtually isolates accounts on the server to give the users trusted access to an almost-whole system, even if it’s not a physical one.</p>
+<h3>The Operating System (OS)</h3>
+<p>This is the core software of your machine. It can be GNU/Linux, BSD, Unix, Windows, or some other server-oriented solution. It acts as a link between the hardware (even if virtualized) and the rest of your software stack to give access to the memory, CPU, network, etc. Basically, without it, nothing runs.</p>
+<h3>The Infrastructure software</h3>
+<p><em>Here’s the point</em>.</p>
+<p>You need to run your codebase on your server, and this codebase is dependent on <em>a lot</em> of tools and libraries. It involves databases, servers (like an <em>HTTP</em> server), interpreters (like <em>Python</em>, <em>PHP</em>, <em>Node.js</em>, etc.), maybe brokers, caching solutions, indexers, and so on. You will also need a way to get remote access, through <em>SSH</em> or <em>FTP</em>. Maybe you’ll need a versioning system too (probably <em>Git</em> or <em>Mercurial</em>). You will definitely need an e-mail stack, not only for your own e-mail boxes, but also to allow your app and system to send messages when needed (e.g. in case of errors). And you will have to secure it all with firewalls and ban systems to prevent attacks.</p>
+<p>It’s a huge and complex system that needs to be maintained, updated, and monitored. It often comes with a dedicated interface to allow you to manage its features and configuration options.</p>
+<h3>Your hosted application</h3>
+<p>Congrats <img src="https://s.w.org/images/core/emoji/2.4/72x72/1f389.png" alt="🎉" class="wp-smiley" style="height: 1em; max-height: 1em;" /> !</p>
+<p>You’ve finally got a server up and running, so you can now deploy your app/website/solution in a production context, to serve it to your users.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:48%;"><img alt="knife cut GIF by Scooby-Doo GIF @Giphy" src="https://media.giphy.com/media/l4pT0NtPSMV3pw6Lm/giphy.gif"></div>
+<p>That’s the basics of what you can find in the Cloud. Whatever service you run online, whatever provider you choose, the stack will have to be like this. This means that for any service you want to run, you have to worry about this whole stack, or you have to find some partner to worry about a part of it for you.</p>
+<h2>Infrastructure, Platform, Software (as-a-service), what’s the difference?</h2>
+<p>As seen above, the technical stack needed to run your service is huge. Hard to build from scratch, hard to maintain. So the market organized itself around the required strengths to deliver those services. We’re in the age of <em>as-a-service</em> solutions. We can find three kinds of offers which target different audiences of customers: <em>IaaS</em>, <em>PaaS</em>, and <em>SaaS</em>. Fortunately, they can be visualized like this:</p>
+<p><img src="https://blog.alwaysdata.com/wp-content/uploads/2018/02/iaas-paas-saas.png" alt="IaaS vs PaaS vs SaaS schema" class="aligncenter size-full wp-image-2026 embed-media__ad__medium" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/02/iaas-paas-saas.png 713w, https://blog.alwaysdata.com/wp-content/uploads/2018/02/iaas-paas-saas-204x300.png 204w, https://blog.alwaysdata.com/wp-content/uploads/2018/02/iaas-paas-saas-697x1024.png 697w" sizes="(max-width: 713px) 100vw, 713px"></p>
+<p>Offers labeled <em>as-a-service</em> have existed for a while. This label is only a gift box<sup id="footnote_plugin_tooltip_6870_7" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_6870_7');">7)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_6870_7"></span> that packages the old well-known workers: sysadmins, network architects, security experts, DevOps, etc. All of these people work in the basement to ensure you’ve got the desired quality to power your apps.</p>
+<h3>IaaS</h3>
+<p><em>Infrastructure-as-a-service</em> is a service that offers the basic physical stack. The fee you pay provides access to a machine, which can be physical or virtualized. Your provider takes care of the data center (its own, or a subcontracted one), the network access, the physical servers, network systems, storage units, and maybe the virtualization layer in case of VPS.</p>
+<ul>
+<li><strong>what you have to do</strong>: You have to manage the OS (often provided in a bare version by your server renter), its security, the technical stack, libs, tools, etc. Then you will be able to deploy your app, configure it for production use, and run it.</li>
+<li><strong>what you need to keep in mind</strong>: managing a whole stack is hard. You’ll have to maintain everything on your machines by yourself. It means paying (with money or with time) for sysadmin and network tasks, security, backups, recovery in case of emergency, and migration. It’s a critical point and you are on your own.</li>
+</ul>
+<p><em>Note</em>: It’s possible that one <em>IaaS</em> provider can rely on another <em>IaaS</em> offer. This means one provider can rent a VPS hosted on physical servers owned by another <em>IaaS</em> provider. Depending on your needs and constraints, remember to check how your provider works.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:36%;"><img alt="gets russian dolls GIF by Cheezburger @Giphy" src="https://media.giphy.com/media/11wjBYmS9Q9jTa/giphy.gif"></div>
+<h3>PaaS</h3>
+<p><em>Platform-as-a-service</em> gives you the infrastructure as seen above, plus it maintains the whole system stack: OS, interpreters, libs, databases, security, etc. It often provides a way to manage your environment without a mess, such as a CLI, config files in your project, a dedicated versioned repository, or a web panel for GUI use.</p>
+<ul>
+<li><strong>what you have to do</strong>: You just have to deploy and configure your app to run it.</li>
+<li><strong>what you need to keep in mind</strong>: Your provider will handle all costs of sysadmin, network, security, backups, etc. It remains in your domain to deploy your app; your provider probably won’t help you with that. Also, you’re responsible for the security of your app itself. To keep it simple: you pay the DevOps costs.</li>
+</ul>
+<h3>SaaS</h3>
+<p><em>Software-as-a-service</em> is a more advanced solution where you can use the software out-of-the-box as a customer. You won’t need to deploy your own instance. This way, you can subscribe to the provider offer to get a full access to the solution as a user. The provider can use its own infrastructure/platform, or it can rely on a subcontractor offer for hosting. This is the model used by many tech startups, as they develop softwares they sell in <em>SaaS</em> mode and rely on hosters for infrastructure.</p>
+<ul>
+<li><strong>what you have to do</strong>: For you, as an end-user, it’s totally transparent.</li>
+<li><strong>what you need to keep in mind</strong>: You can’t customize the server outside of the application settings. It a service, remotely available, that acts like an app on your phone. You never have access to the full server. If you have many apps in <em>SaaS</em> mode, you will have huge costs (by user or by service), so using a <em>PaaS</em> offer to host all your apps is probably the smarter move.</li>
+</ul>
+<p>So, let’s do another sketch (I like to do sketches) to summarize those concepts. In each cloud, you’ll find what roles you pay for in each offer, which also means what you can’t manage by yourself:</p>
+<p><img src="https://blog.alwaysdata.com/wp-content/uploads/2018/03/xaas_domains_of_responsibility_en.png" alt="Domains of responsibility for XaaS offers schema" class="aligncenter size-full wp-image-2053 embed-media__ad__medium" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/03/xaas_domains_of_responsibility_en.png 1173w, https://blog.alwaysdata.com/wp-content/uploads/2018/03/xaas_domains_of_responsibility_en-300x241.png 300w, https://blog.alwaysdata.com/wp-content/uploads/2018/03/xaas_domains_of_responsibility_en-768x617.png 768w, https://blog.alwaysdata.com/wp-content/uploads/2018/03/xaas_domains_of_responsibility_en-1024x822.png 1024w" sizes="(max-width: 1173px) 100vw, 1173px"></p>
+<h2>Who are you, <em>alwaysdata</em>?</h2>
+<p>We are a <em>PaaS</em> provider. We are <a href="https://blog.alwaysdata.com/2018/02/20/4-years-later-being-independant-feedback/">owner of our own physical stack</a>. We maintain for you the entire system you need in order to provide your solution to your customers. This is true for our <a href="https://www.alwaysdata.com/en/pricing/#vps">VPS</a> and <a href="https://www.alwaysdata.com/en/pricing/#dedicated">Dedicated servers</a> offers, but it’s also true for our <a href="https://www.alwaysdata.com/en/pricing/#shared">Shared hosting</a> offer. In our model, VPS and Dedicated Server use the same platform as Shared hosting. The difference is that you’re completely alone in your server instance in the former two: you’re the only one that consumes resources.</p>
+<p>Since we started <em>alwaysdata</em>, we have chosen to not just be a <em>IaaS</em> provider. Twelve years ago, we weren’t able to find a solution that gave us the flexibility we needed to host apps and services in a managed environment. So, we made our own and decided to release it for the rest of the world. And that’s the basic reason why we can’t compete with other <em>IaaS</em> solutions: they simply don’t offer the same level of services, nor the same level of quality.</p>
+<p>We choose to offer a full environment. <em>alwaysdata</em> provides support for all available interpreters in the market, the ability to run whatever programs you want in your userspace, the ability to run services in the background, many SQL and NoSQL databases, full SSH remote access, and much more! Even in the Shared Hosting environment, our features are far beyond those of our competitors, who often only support PHP behind a single Apache instance, with a MySQL database and no SSH access.</p>
+<p>Performance and security are also in our DNA. We never automatically rely on the virtualization layer to do isolation, as can be seen elsewhere. Instead, we use the kernel and OS systems designed to isolate accounts. This practice allows us to give you an increased level of performance with no compromise on security. Of course we use virtualization in some parts of our platform, but we use it only when it makes sense.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:27%;"><img alt="i see eye roll GIF by Warner Archive @Giphy" src="https://media.giphy.com/media/3o6Ztj8kicbFpujPGw/giphy.gif"></div>
+<hr>
+<p>I hope this post helps you better understand the key differences between the offers of hosting providers. You should <a href="https://www.alwaysdata.com/en/signup/">have a try</a> at what a modern <em>PaaS</em> solution should always be like. Giving you the comfiest position to run your apps has been our goal since we started!</p>
+<div class="footnote_container_prepare">	<p><span onclick="footnote_expand_reference_container();">Notes</span><span style="display: none;">&nbsp;&nbsp;&nbsp;[ <a id="footnote_reference_container_collapse_button" style="cursor:pointer;" onclick="footnote_expand_collapse_reference_container();">+</a> ]</span></p></div><div id="footnote_references_container" style="">	<table class="footnote-reference-container">		<tbody>		<tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_6870_1">1.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_6870_1');">&#8593;</span></td>	<td class="footnote_plugin_text">hoping things will be more understandable with the next release of our website</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_6870_2">2.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_6870_2');">&#8593;</span></td>	<td class="footnote_plugin_text">which are computers generally with high computational power</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_6870_3">3.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_6870_3');">&#8593;</span></td>	<td class="footnote_plugin_text">never underestimate the cables!</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_6870_4">4.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_6870_4');">&#8593;</span></td>	<td class="footnote_plugin_text">I will talk about the <em>server-less</em> paradigm in a future blog post, where we will learn that a <em>server-less</em> solution generally implies a server anyway <code>¯\_(ツ)_/¯</code></td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_6870_5">5.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_6870_5');">&#8593;</span></td>	<td class="footnote_plugin_text">I also have a blog post in my todo to talk about virtualization vs. containerization vs. isolation</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_6870_6">6.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_6870_6');">&#8593;</span></td>	<td class="footnote_plugin_text">purists will probably already put my name on their need-to-kill list when they read that, I hope you’ll forgive me for this shortcut in my explanation: I try to stay concise, and the debate on virtualization vs. containers in hosting is out of the scope of this post</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_6870_7">7.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_6870_7');">&#8593;</span></td>	<td class="footnote_plugin_text">but gift boxes are cool, they’re a promise of joy</td></tr>		</tbody>	</table></div><script type="text/javascript">	function footnote_expand_reference_container() {		jQuery("#footnote_references_container").show();        jQuery("#footnote_reference_container_collapse_button").text("-");	}    function footnote_collapse_reference_container() {        jQuery("#footnote_references_container").hide();        jQuery("#footnote_reference_container_collapse_button").text("+");    }	function footnote_expand_collapse_reference_container() {		if (jQuery("#footnote_references_container").is(":hidden")) {            footnote_expand_reference_container();		} else {            footnote_collapse_reference_container();		}	}    function footnote_moveToAnchor(p_str_TargetID) {        footnote_expand_reference_container();        var l_obj_Target = jQuery("#" + p_str_TargetID);        if(l_obj_Target.length) {            jQuery('html, body').animate({                scrollTop: l_obj_Target.offset().top - window.innerHeight/2            }, 1000);        }    }</script>]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/03/05/saas-paas-iaas-what-are-the-differences-and-what-does-it-matter/feed/</wfw:commentRss>
+		<slash:comments>3</slash:comments>
+		</item>
+		<item>
+		<title>4 years later: being independant, feedback</title>
+		<link>https://blog.alwaysdata.com/2018/02/20/4-years-later-being-independant-feedback/</link>
+		<comments>https://blog.alwaysdata.com/2018/02/20/4-years-later-being-independant-feedback/#respond</comments>
+		<pubDate>Tue, 20 Feb 2018 09:37:03 +0000</pubDate>
+		<dc:creator><![CDATA[m4dz]]></dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+		<category><![CDATA[Architecture]]></category>
+		<category><![CDATA[Backup]]></category>
+		<category><![CDATA[Dedicated Servers]]></category>
+		<category><![CDATA[Features]]></category>
+		<category><![CDATA[Infrastructure]]></category>
+		<category><![CDATA[Shared servers]]></category>
+		<category><![CDATA[Status]]></category>
+		<category><![CDATA[VPS servers]]></category>
+
+		<guid isPermaLink="false">https://blog.alwaysdata.com/?p=1999</guid>
+		<description><![CDATA[A feedback about our freedom: why we choose to manage our own hardware stack of servers and network]]></description>
+				<content:encoded><![CDATA[<p>In 2013, we decided to <a href="https://blog.alwaysdata.com/2014/02/17/alwaysdata-becomes-independent/">stop contracting out our physical infrastructure</a>. With the benefit of hindsight, we wanted to share our experience with you.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:65%;"><img alt="Experience GIF @Giphy" src="https://media.giphy.com/media/PlnQNcQ4RYOhG/giphy-downsized-large.gif"></div>
+<h2>First and foremost, high quality, all-inclusive/user-friendly</h2>
+<p>If you are an <em>alwaysdata</em> customer, then you are already familiar with the cockpit! If you aren’t, then <a href="https://www.alwaysdata.com/en/pricing/">take five minutes to try our free 100MB shared hosting plan</a> and explore our services and interface.</p>
+<p>We see our management interface as a cockpit. We designed it so that you are able to administer everything in one place: domains, websites, databases, distant access, configurations — everything is there. You can also contact us directly from the cockpit via our ticketing system. And it has a lot more features!</p>
+<p><img src="https://blog.alwaysdata.com/wp-content/uploads/2018/02/alwaysdatas-cockpit-status-view-screenshot-en.png" alt="alwaysdata's cockpit - status view - screenshot [en]" class="aligncenter size-full wp-image-2005 embed-media__ad__full" srcset="https://blog.alwaysdata.com/wp-content/uploads/2018/02/alwaysdatas-cockpit-status-view-screenshot-en.png 1388w, https://blog.alwaysdata.com/wp-content/uploads/2018/02/alwaysdatas-cockpit-status-view-screenshot-en-300x265.png 300w, https://blog.alwaysdata.com/wp-content/uploads/2018/02/alwaysdatas-cockpit-status-view-screenshot-en-768x678.png 768w, https://blog.alwaysdata.com/wp-content/uploads/2018/02/alwaysdatas-cockpit-status-view-screenshot-en-1024x904.png 1024w" sizes="(max-width: 1388px) 100vw, 1388px"></p>
+<p>In 2006, no hosting offer fit our needs. This is why we built one and developed our own tools internally. Ten years later, we regret nothing. Our customers have access to the most flexible and user-friendly service on the market. These are two of our main strengths.</p>
+<p>We host everything, but the core of our business is offering managed services. When you open an account at <em>alwaysdata</em>, you have access to a wide range of services: interpreters, databases, brokers, e-mails, backups, etc. And you have nothing to worry about. Everything is managed, safe, and kept up-to-date.</p>
+<p>Nevertheless, one can only do so much work. Developing a software structure and getting a physical infrastructure that fit our ambitions was too great of a challenge at the time. We had to choose, and we chose software, leaving the physical infrastructure management to trusted third parties.</p>
+<p>Or so we thought. For the first few years, we relied on the <em>OVH</em> infrastructure, using extra servers at <em>Amazon EC2</em>, <em>Hertzner</em>, and <em>Online</em>. This architecture allowed us to focus on developing our project: management interface, monitoring, support, <em>alproxy</em>, account management, and more.</p>
+<p>Then, four years ago, we became fed up by the poor quality of our subcontractors. We had come a long way, but the subcontractors had seriously impacted our customers’ experiences. It was then that we decided to become our own hardware and network operator.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:47%;"><img alt="sounds like a plan ok GIF @Giphy" src="https://media.giphy.com/media/3oz8xQQP4ahKiyuxHy/giphy.gif"></div>
+<h2>No compromises</h2>
+<p>We stopped subcontracting because they provided you with substandard experiences. Our physical infrastructure service had to fit our ambition to provide you with the best services.</p>
+<h3>The first servers</h3>
+<p>It started with a few machines. We chose, configured, and installed them, but, of course, this wasn’t easy. We had to learn the hosting business in depth. But we began to see results: no global breakdown, ever<sup id="footnote_plugin_tooltip_7403_1" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7403_1');">1)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7403_1"></span>.</p>
+<p>During this process, we’ve stood by our principles:</p>
+<ul>
+<li><strong>Neutrality</strong>, always. From the data centers handled by <a href="http://www.equinix.com/">Equinix</a>, a neutral operator, to the network operators <a href="http://www.ielo-liazo.com/">IELO-LIAZO</a>, <a href="http://www.nerim.fr/">Nerim</a>, <a href="http://www.cogentco.com/">Cogent</a>, and <a href="http://www.interoute.com/">Interoute</a>, we guarantee the independence of your data, traffic, and operations. We are a member of <a href="http://www.ripe.net/">RIPE</a>, which ensures that you are independent as an operator on our IP range.</li>
+<li><strong>Quality</strong>, always. We use high-end servers that are equipped with <em>data centers</em> that were labeled SSDs in production. They all have dual-power blocks on separate electrical circuits and dual-network interfaces that are connected to <em>switches</em> from different brands. Our years with subcontracting have taught us that the details matter<sup id="footnote_plugin_tooltip_7403_2" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7403_2');">2)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7403_2"></span>. This was the right choice! No major breakdowns during all these years is a great achievement.</li>
+</ul>
+<h3>Redundancy: at any cost?</h3>
+<p>We often are asked about data redundancy at <em>alwaysdata</em>. Back in the day, we duplicated data on two distinct infrastructures. However, this method was extremely costly to maintain, and the massive unavailability of the first point could not justify the associated costs. We <a href="https://blog.alwaysdata.com/fr/2012/11/06/retour-sur-la-panne-http4-du-21-octobre/#et-la-redondance">talked about this decision</a><sup>[fr]</sup>  back in 2012.</p>
+<p>Our goal is not a zero Recovery Time Objective (RTO). We tried real-time redundancy, and it actually decreased our quality of service by introducing bugs and making the whole system unstable. Our availability rate is excellent, with only a negligible incidence of breakdown. Such a complex and risky architecture is not justifiable given our successes.</p>
+<p>What matters to us is the Recovery Point Objective (RPO). We ensure that our backups are easy to recover and are not corrupted. Local data are mirrored (RAID1) on every server. In case of emergency, we have the ability move data from an unavailable server to a spare one in the same bay, guaranteeing a functioning system in fewer than 30 minutes. This solution gives us the flexibility to recover the original server in a calm and unhurried manner.</p>
+<p>This is not real-time redundancy, but you will have the insurance of continuity of service <sup id="footnote_plugin_tooltip_7403_3" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7403_3');">3)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7403_3"></span> in case of any incident.</p>
+<h3>Backups</h3>
+<p>Your data continuity matters. We ensure 30 last-day backups in a second data center operated by <a href="https://www.online.net/en/datacenter">Online</a> and on our own servers. Ensuring quality is our main goal. Our physical infrastructure has resulted in fewer corrupted disks: only two during the last four years<sup id="footnote_plugin_tooltip_7403_4" class="footnote_plugin_tooltip_text" onclick="footnote_moveToAnchor('footnote_plugin_reference_7403_4');">4)</sup><span class="footnote_tooltip" id="footnote_plugin_tooltip_text_7403_4"></span> compared to three or four per month with our last subcontractor.</p>
+<h3>Be free, for the best</h3>
+<p>Our freedom allows us to provide you with more choices for our server configurations. We’re no longer limited by our subcontractors. We choose only the material and suppliers that we trust. We manage our own supply chain, which allows us to prevent delays. Within hours, we can deploy servers on production in standard configurations.</p>
+<p>As an independent operator, we are freer than we were with subcontractors. With our own IP ranges, we no longer suffer from the blacklisting that impacted our subcontractors. In addition, we are able to do advanced filtering on access on our side.</p>
+<p>We finally have better control: <a href="https://blog.alwaysdata.com/2018/02/01/ipv6-to-rule-them-all/">deploying IPv6</a> wouldn’t have been possible if we didn’t have our own infrastructure. Now, we are ready to offer something unique: a hosting platform with software solutions that perfectly fit your needs.</p>
+<h2>2018, an all-inclusive offer</h2>
+<p>In 2013, <em>alwaysdata</em> started with only three devices. Now, we have nearly fifty times that number of servers and devices to power your apps and websites. That migration took some time, but we learned a lot about our skills and your needs. With our final servers finally running on our side, we’re free.</p>
+<p>We’re free to provide you with a solution that you’re happy to work with. We often say that <em>alwaysdata</em> is <em>conceived by devs, for devs</em>. Now more than ever, that’s our main incentive. We will continue to offer you with more and more features on the hardware and software sides. This adventure wouldn’t have happened without you. Thank you for your confidence in our ability to change the hosting world.</p>
+<div class="embed-media__giphy" style="width:65%;padding-bottom:35%;"><img alt="charlie brown hug GIF @Giphy" src="https://media.giphy.com/media/8KKRIP5ZHUo2k/giphy.gif"></div>
+<hr>
+<p>We at <em>alwaysdata</em> will never run out of ideas about new features. Let’s play in the comments: which technologies — unlikely or wacky, hardware or software — can you imagine coming in the <em>alwaysdata</em> platform?</p>
+<div class="footnote_container_prepare">	<p><span onclick="footnote_expand_reference_container();">Notes</span><span style="display: none;">&nbsp;&nbsp;&nbsp;[ <a id="footnote_reference_container_collapse_button" style="cursor:pointer;" onclick="footnote_expand_collapse_reference_container();">+</a> ]</span></p></div><div id="footnote_references_container" style="">	<table class="footnote-reference-container">		<tbody>		<tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7403_1">1.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7403_1');">&#8593;</span></td>	<td class="footnote_plugin_text">unless you count this Sunday at 1 a.m., which lasted for fewer than five minutes</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7403_2">2.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7403_2');">&#8593;</span></td>	<td class="footnote_plugin_text">a breakdown due to something as basic as overheating was simply not an option</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7403_3">3.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7403_3');">&#8593;</span></td>	<td class="footnote_plugin_text">if you need more, stay tuned! A <strong>gold</strong> offer will be introduced soon, featuring all the high availability options you could possibly need and a physical redundancy in another data center. You will have practically a 99.95% availability rate</td></tr><tr>	<td class="footnote_plugin_index"><span id="footnote_plugin_reference_7403_4">4.</span></td>	<td class="footnote_plugin_link"><span onclick="footnote_moveToAnchor('footnote_plugin_tooltip_7403_4');">&#8593;</span></td>	<td class="footnote_plugin_text">and only in the last month with two new disks, which were probably because they come from a bad batch</td></tr>		</tbody>	</table></div><script type="text/javascript">	function footnote_expand_reference_container() {		jQuery("#footnote_references_container").show();        jQuery("#footnote_reference_container_collapse_button").text("-");	}    function footnote_collapse_reference_container() {        jQuery("#footnote_references_container").hide();        jQuery("#footnote_reference_container_collapse_button").text("+");    }	function footnote_expand_collapse_reference_container() {		if (jQuery("#footnote_references_container").is(":hidden")) {            footnote_expand_reference_container();		} else {            footnote_collapse_reference_container();		}	}    function footnote_moveToAnchor(p_str_TargetID) {        footnote_expand_reference_container();        var l_obj_Target = jQuery("#" + p_str_TargetID);        if(l_obj_Target.length) {            jQuery('html, body').animate({                scrollTop: l_obj_Target.offset().top - window.innerHeight/2            }, 1000);        }    }</script>]]></content:encoded>
+			<wfw:commentRss>https://blog.alwaysdata.com/2018/02/20/4-years-later-being-independant-feedback/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+	</channel>
+</rss>
+
+<!--
+Performance optimized by W3 Total Cache. Learn more: https://www.w3-edge.com/products/
+
+Page Caching using disk: enhanced 
+
+Served from: blog.alwaysdata.com @ 2018-07-27 09:13:29 by W3 Total Cache
+-->
